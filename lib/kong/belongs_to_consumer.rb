@@ -11,13 +11,13 @@ module Kong
     # @return [Kong::Consumer]
     def consumer
       if @consumer
-        return @consumer
+        @consumer
       elsif self.attributes['consumer'] && self.attributes['consumer'].instance_of?(Hash)
         @consumer = Consumer.new(attributes['consumer'])
-        return @consumer
+        @consumer
       elsif self.attributes['consumer'] && self..attributes['consumer'].instance_of?(Kong::Consumer)
         @consumer = self.attributes['consumer']
-        return @consumer
+        @consumer
       end
       # @consumer ||= Consumer.find(self.consumer.id)
       # @consumer ||= self.consumer
