@@ -15,7 +15,7 @@ module Kong
       elsif self.attributes['consumer'] && self.attributes['consumer'].instance_of?(Hash)
         @consumer = Consumer.new(attributes['consumer'])
         @consumer
-      elsif self.attributes['consumer'] && self..attributes['consumer'].instance_of?(Kong::Consumer)
+      elsif self.attributes['consumer'] && self.attributes['consumer'].instance_of?(Kong::Consumer)
         @consumer = self.attributes['consumer']
         @consumer
       end
