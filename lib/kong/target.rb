@@ -2,7 +2,7 @@ module Kong
   class Target
     include Base
 
-    ATTRIBUTE_NAMES = %w(id upstream_id target weight).freeze
+    ATTRIBUTE_NAMES = %w(id upstream target weight).freeze
     API_END_POINT = '/targets/'.freeze
 
     def self.find(id)
@@ -15,7 +15,7 @@ module Kong
 
     def initialize(attributes = {})
       super(attributes)
-      raise ArgumentError, 'You must specify an upstream_id' unless self.upstream_id
+      raise ArgumentError, 'You must specify an upstream with id' unless attributes['upstream'] && attributes['upstream']['id']
     end
 
     def active?
@@ -24,16 +24,6 @@ module Kong
 
     def save
       create
-    end
-
-    def create
-      headers = { 'Content-Type' => 'application/json' }
-      body = self.attributes.dup
-      body["upstream"]= {"id" => self.upstream_id}
-      body.delete("upstream_id")
-      response = client.post(@api_end_point, body, nil, headers)
-      init_attributes(response)
-      self
     end
 
     def create_or_update
@@ -45,27 +35,21 @@ module Kong
     end
 
     def use_upstream_end_point
-      self.api_end_point = "/upstreams/#{self.upstream_id}#{self.class::API_END_POINT}" if self.upstream_id
+      self.api_end_point = "/upstreams/#{self.attributes['upstream']['id']}#{self.class::API_END_POINT}" if self.attributes['upstream'] && self.attributes['upstream']['id']
     end
 
     # Get Upstream resource
     # @return [Kong::Upstream]
     def upstream
-      @upstream ||= Upstream.find(self.upstream_id)
+      @upstream ||= Upstream.find(self.attributes['upstream']['id'])
     end
 
     # Set Upstream resource
     # @param [Kong::Upstream] upstream
-    def upstream=(upstream)
-      @upstream = upstream
-      self.upstream_id = upstream.id
+    def upstream=(upstream_id)
+      self.attributes["upstream"]["id"] = upstream_id
+      @upstream = Upstream.find(self.attributes['upstream']['id'])
     end
 
-    # Set Upstream id
-    # @param [String] id
-    def upstream_id=(id)
-      super(id)
-      use_upstream_end_point
-    end
   end
 end
