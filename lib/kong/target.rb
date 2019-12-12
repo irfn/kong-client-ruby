@@ -26,6 +26,16 @@ module Kong
       create
     end
 
+    def create
+      headers = { 'Content-Type' => 'application/json' }
+      body = self.attributes.dup
+      body["upstream"]= {"id" => self.upstream_id}
+      body.delete("upstream_id")
+      response = client.post(@api_end_point, body, nil, headers)
+      init_attributes(response)
+      self
+    end
+
     def create_or_update
       raise NotImplementedError, 'Kong does not support updating targets, you must delete and re-create'
     end
